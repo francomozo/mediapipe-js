@@ -1,31 +1,28 @@
-const video1 = document.getElementsByClassName('input_video1')[0];
-const out1 = document.getElementsByClassName('output1')[0];
-const controlsElement1 = document.getElementsByClassName('control1')[0];
-const canvasCtx1 = out1.getContext('2d');
+const video = document.getElementsByClassName('input_video')[0];
+const output = document.getElementsByClassName('output')[0];
+const controlsElements = document.getElementsByClassName('control-panel')[0];
+const canvasCtx = output.getContext('2d');
 const fpsControl = new FPS();
 
-const spinner = document.querySelector('.loading');
-spinner.ontransitionend = () => {
-  spinner.style.display = 'none';
-};
+
 
 function onResultsFace(results) {
   document.body.classList.add('loaded');
   fpsControl.tick();
-  canvasCtx1.save();
-  canvasCtx1.clearRect(0, 0, out1.width, out1.height);
-  canvasCtx1.drawImage(
-      results.image, 0, 0, out1.width, out1.height);
+  canvasCtx.save();
+  canvasCtx.clearRect(0, 0, output.width, output.height);
+  canvasCtx.drawImage(
+      results.image, 0, 0, output.width, output.height);
   if (results.detections.length > 0) {
     drawRectangle(
-        canvasCtx1, results.detections[0].boundingBox,
+        canvasCtx, results.detections[0].boundingBox,
         {color: 'blue', lineWidth: 4, fillColor: '#00000000'});
-    drawLandmarks(canvasCtx1, results.detections[0].landmarks, {
+    drawLandmarks(canvasCtx, results.detections[0].landmarks, {
       color: 'red',
       radius: 5,
     });
   }
-  canvasCtx1.restore();
+  canvasCtx.restore();
 }
 
 const faceDetection = new FaceDetection({locateFile: (file) => {
@@ -33,16 +30,16 @@ const faceDetection = new FaceDetection({locateFile: (file) => {
 }});
 faceDetection.onResults(onResultsFace);
 
-const camera = new Camera(video1, {
+const camera = new Camera(video, {
   onFrame: async () => {
-    await faceDetection.send({image: video1});
+    await faceDetection.send({image: video});
   },
   width: 480,
   height: 480
 });
 camera.start();
 
-new ControlPanel(controlsElement1, {
+new ControlPanel(controlsElements, {
       selfieMode: true,
       minDetectionConfidence: 0.5,
     })
@@ -58,6 +55,6 @@ new ControlPanel(controlsElement1, {
       }),
     ])
     .on(options => {
-      video1.classList.toggle('selfie', options.selfieMode);
+      video.classList.toggle('selfie', options.selfieMode);
       faceDetection.setOptions(options);
     });
